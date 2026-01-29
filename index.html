@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEXA INDUSTRIES | THE FINAL EMPIRE</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root { --accent: #00d2ff; --bg: #050505; --card: #0e0e0e; --transition: 1s cubic-bezier(0.16, 1, 0.3, 1); --error: #ff4b2b; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background: var(--bg); color: #fff; overflow-x: hidden; scroll-behavior: smooth; }
+
+        /* RE-ENGINEERED ANIMATIONS */
+        @keyframes revealUp { 
+            from { opacity: 0; transform: translateY(50px) scale(0.9); filter: blur(10px); } 
+            to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); } 
+        }
+        @keyframes glow { 0%, 100% { box-shadow: 0 0 5px var(--accent); } 50% { box-shadow: 0 0 25px var(--accent); } }
+        @keyframes toastIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+        /* HEADER */
+        header { position: fixed; top: 0; width: 100%; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; z-index: 1000; backdrop-filter: blur(30px); border-bottom: 1px solid rgba(0,210,255,0.1); }
+        .logo { font-weight: 900; letter-spacing: 5px; color: var(--accent); cursor: pointer; text-decoration: none; font-size: 1.5rem; text-shadow: 0 0 10px rgba(0,210,255,0.3); }
+        
+        .search-box { flex-grow: 1; max-width: 500px; margin: 0 30px; }
+        .search-box input { width: 100%; background: rgba(255,255,255,0.03); border: 1px solid #1a1a1a; color: #fff; padding: 12px 25px; border-radius: 30px; outline: none; transition: 0.4s; font-size: 0.85rem; border: 1px solid rgba(0,210,255,0.1); font-family: 'Share Tech Mono'; }
+        .search-box input:focus { border-color: var(--accent); background: #000; box-shadow: 0 0 20px rgba(0,210,255,0.15); }
+
+        /* STORY SECTIONS (FIXED ANIMATION) */
+        .page { display: block; padding-top: 100px; }
+        .story-section { min-height: 100vh; padding: 100px 8%; display: flex; flex-direction: column; justify-content: center; position: relative; opacity: 0; }
+        .story-section.visible { animation: revealUp 1.2s forwards; opacity: 1; }
+        .story-section h2 { font-size: clamp(2.5rem, 8vw, 5rem); font-weight: 900; line-height: 1.1; margin-bottom: 30px; background: linear-gradient(90deg, #fff, var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .story-section p { font-size: 1.5rem; color: #777; max-width: 800px; line-height: 1.6; }
+
+        /* MARKETPLACE */
+        #market-view { display: none; padding: 120px 8%; animation: revealUp 0.8s forwards; }
+        .market-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 35px; }
+        .product-card { background: var(--card); border-radius: 25px; overflow: hidden; border: 1px solid #111; transition: 0.5s; position: relative; }
+        .product-card:hover { border-color: var(--accent); transform: translateY(-15px); }
+        .product-card img { width: 100%; height: 240px; object-fit: cover; transition: 0.5s; }
+
+        /* PANELS */
+        .side-panel { position: fixed; top: 0; right: -100%; width: 100%; max-width: 500px; height: 100%; background: rgba(0,0,0,0.98); z-index: 2000; padding: 60px 40px; transition: 0.6s cubic-bezier(0.23, 1, 0.32, 1); border-left: 1px solid var(--accent); backdrop-filter: blur(20px); }
+        .side-panel.active { right: 0; }
+        
+        /* NEXA TOAST (ERROR/INFO) */
+        #nexa-toast { position: fixed; bottom: 30px; right: 30px; padding: 20px 40px; border-radius: 15px; background: #111; border: 1px solid var(--accent); color: #fff; z-index: 10000; display: none; animation: toastIn 0.5s forwards; font-weight: 700; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
+
+        /* BUTTONS & INPUTS */
+        .btn-action { background: var(--accent); color: #000; padding: 18px; border: none; font-weight: 900; width: 100%; cursor: pointer; border-radius: 12px; transition: 0.4s; letter-spacing: 1px; }
+        .btn-action:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0,210,255,0.4); }
+
+        input, textarea { width: 100%; background: #0a0a0a; border: 1px solid #1a1a1a; color: #fff; padding: 18px; border-radius: 10px; margin-bottom: 15px; outline: none; }
+
+        /* AI CHAT */
+        #chat-logs { height: calc(100% - 180px); background: #000; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
+        .msg { padding: 12px 18px; border-radius: 15px; max-width: 85%; line-height: 1.5; font-size: 0.95rem; }
+        .msg.user { background: #111; align-self: flex-end; color: var(--accent); border-bottom-right-radius: 2px; border: 1px solid rgba(0,210,255,0.2); }
+        .msg.ai { background: var(--accent); color: #000; align-self: flex-start; border-bottom-left-radius: 2px; font-weight: 700; }
+
+        .footer { padding: 80px 0; text-align: center; opacity: 0.2; letter-spacing: 15px; font-size: 0.7rem; font-weight: 900; }
+        
+        #success-screen { display: none; position: fixed; inset: 0; background: #000; z-index: 9999; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+    </style>
+</head>
+<body>
+
+    <div id="nexa-toast">SİSTEM MESAJI</div>
+
+    <div id="success-screen">
+        <div style="font-size: 5rem; color: var(--accent); margin-bottom: 20px;">✓</div>
+        <h1 style="font-size: 3rem; font-weight: 900; margin-bottom: 10px;">SİFARİŞ ONAYLANDI</h1>
+        <p style="color:#666; margin-bottom:40px;">NEXA sistemi müraciətinizi qəbul etdi.</p>
+        <button class="btn-action" style="max-width: 300px;" onclick="location.reload()">BAŞA QAYIT</button>
+    </div>
+
+    <header>
+        <div class="logo" onclick="location.reload()">NEXA</div>
+        <div class="search-box">
+            <input type="text" id="nexaSearch" placeholder="Market, AI, Sifariş..." onkeypress="smartSearch(event)">
+        </div>
+        <div style="cursor:pointer; font-weight:900; color:var(--accent)" onclick="openPanel('menu-panel')">SYSTEM MENU</div>
+    </header>
+
+    <div id="home-view" class="page">
+        <section class="story-section">
+            <h2>Gələcək <br>İndi Başlayır.</h2>
+            <p>NEXA Industries, Təbriz Hüseynli tərəfindən Azərbaycanın rəqəmsal ekosistemini idarə etmək üçün inşa edildi.</p>
+        </section>
+        <section class="story-section">
+            <h2>Kodların Gücü</h2>
+            <p>Biz sadəcə dizayn yox, yaşayan və böyüyən süni intellekt alqoritmləri yaradırıq.</p>
+        </section>
+        <section class="story-section">
+            <h2>Hüdudsuz İmkanlar</h2>
+            <p>Sizin vizyonunuz, bizim kodlarımız. Ultra-sürətli veb panellər artıq bir klik uzağınızda.</p>
+        </section>
+    </div>
+
+    <div id="market-view" class="page">
+        <h2 style="margin-bottom:50px; color:var(--accent); font-size:3rem; font-weight:900;">MARKETPLACE</h2>
+        <div class="market-grid" id="market-list"></div>
+    </div>
+
+    <div id="menu-panel" class="side-panel">
+        <h2 style="color:var(--accent); margin-bottom:40px;">NEXA OS</h2>
+        <button class="btn-action" style="margin-bottom:15px;" onclick="smartSearch({key:'Enter', target:{value:'sifariş'}})">YENİ PROYEKT</button>
+        <button class="btn-action" style="margin-bottom:15px;" onclick="smartSearch({key:'Enter', target:{value:'market'}})">MARKETPLACE</button>
+        <button class="btn-action" onclick="smartSearch({key:'Enter', target:{value:'ai'}})">VEXA AI</button>
+        <div class="footer" style="margin-top:50px;">POWERED BY NEXA</div>
+    </div>
+
+    <div id="ai-panel" class="side-panel">
+        <h2 style="color:var(--accent); margin-bottom:20px;">VEXA (GROQ ENGINE)</h2>
+        <div id="chat-logs"></div>
+        <div style="display:flex; gap:10px;">
+            <input type="text" id="ai-input" placeholder="Vexa-ya sual ver..." onkeypress="if(event.key==='Enter') askVexa()">
+            <button class="btn-action" style="width:60px; padding:0" onclick="askVexa()">></button>
+        </div>
+    </div>
+
+    <div id="order-panel" class="side-panel">
+        <h2 style="color:var(--accent); margin-bottom:30px;">ÖZƏL LAYİHƏ</h2>
+        <input type="text" id="ord-comp" placeholder="Layihə Adı">
+        <textarea id="ord-desc" rows="5" placeholder="İstəkləriniz..."></textarea>
+        <input type="text" id="ord-phone" placeholder="Nömrəniz">
+        <button class="btn-action" onclick="sendOrder()">GÖNDƏR</button>
+    </div>
+
+    <div id="buy-panel" class="side-panel">
+        <h2 id="buy-title" style="color:var(--accent); margin-bottom:30px;">SİFARİŞ</h2>
+        <input type="text" id="buy-biz" placeholder="Şirkət/Biznes Adı">
+        <input type="text" id="buy-phone" placeholder="Əlaqə Nömrəsi">
+        <button class="btn-action" onclick="confirmPurchase()">ALINMASI TƏSDİQLƏ</button>
+    </div>
+
+    <div class="footer">POWERED BY NEXA INDUSTRIES</div>
+
+    <script>
+        // SADECE GROQ KEY GÜNCELLENDİ
+        const GROQ_KEY = "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"; 
+        const BOT_TOKEN = "8509004395:AAFi3e-4jE2sJUUMLrOI0yZyRYRKjYPWJn4";
+        const ADMIN_ID = "8154206849";
+        
+        let marketplaceData = JSON.parse(localStorage.getItem('nexaMarket')) || [];
+        let selectedProduct = "";
+
+        const revealSections = () => {
+            document.querySelectorAll('.story-section').forEach(sec => {
+                const top = sec.getBoundingClientRect().top;
+                if(top < window.innerHeight * 0.8) sec.classList.add('visible');
+            });
+        };
+        window.addEventListener('scroll', revealSections);
+        revealSections();
+
+        function nexaNotify(msg, isError = false) {
+            const toast = document.getElementById('nexa-toast');
+            toast.innerText = msg;
+            toast.style.borderColor = isError ? "var(--error)" : "var(--accent)";
+            toast.style.display = "block";
+            setTimeout(() => { toast.style.display = "none"; }, 3000);
+        }
+
+        async function askVexa() {
+            const input = document.getElementById('ai-input');
+            const logs = document.getElementById('chat-logs');
+            if(!input.value) return;
+
+            const userText = input.value;
+            logs.innerHTML += `<div class="msg user">${userText}</div>`;
+            input.value = "";
+            logs.scrollTop = logs.scrollHeight;
+
+            try {
+                const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${GROQ_KEY}`,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        model: "llama-3.3-70b-versatile",
+                        messages: [{
+                            role: "system",
+                            content: "Sən Vexa-san. Nexa Industries-in rəqəmsal köməkçisisən. Qurucun Təbriz Hüseynlidir. Professional və qısa cavablar ver."
+                        }, {
+                            role: "user",
+                            content: userText
+                        }]
+                    })
+                });
+
+                const data = await response.json();
+                const aiResp = data.choices[0].message.content;
+                logs.innerHTML += `<div class="msg ai">${aiResp}</div>`;
+            } catch (e) {
+                logs.innerHTML += `<div class="msg ai">Sistem bağlantısında xəta baş verdi. API açarını və ya bağlantını yoxlayın.</div>`;
+            }
+            logs.scrollTop = logs.scrollHeight;
+        }
+
+        async function sendOrder() {
+            const tel = document.getElementById('ord-phone').value;
+            if(!tel || tel.length < 5) {
+                nexaNotify("SİSTEM XƏTASI: Nömrə daxil edilməyib!", true);
+                return;
+            }
+            const text = `🚀 YENİ LAYİHƏ\n\n🏢: ${document.getElementById('ord-comp').value}\n📝: ${document.getElementById('ord-desc').value}\n📞: ${tel}`;
+            await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${ADMIN_ID}&text=${encodeURIComponent(text)}`);
+            document.getElementById('success-screen').style.display = 'flex';
+        }
+
+        async function confirmPurchase() {
+            const tel = document.getElementById('buy-phone').value;
+            if(!tel || tel.length < 5) {
+                nexaNotify("SİSTEM XƏTASI: Əlaqə nömrəsi mütləqdir!", true);
+                return;
+            }
+            const text = `🛍️ SATIŞ\n\n📦: ${selectedProduct}\n🏢: ${document.getElementById('buy-biz').value}\n📞: ${tel}`;
+            await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${ADMIN_ID}&text=${encodeURIComponent(text)}`);
+            document.getElementById('success-screen').style.display = 'flex';
+        }
+
+        function renderMarket() {
+            const container = document.getElementById('market-list');
+            container.innerHTML = marketplaceData.map(item => `
+                <div class="product-card">
+                    <img src="${item.img}">
+                    <div class="product-info" style="padding:25px;">
+                        <h3 style="font-size:1.5rem;">${item.name}</h3>
+                        <p style="color:#555; margin:10px 0; font-size:0.9rem;">${item.desc || 'Nexa Core Software'}</p>
+                        <div style="color:var(--accent); font-size:1.8rem; font-weight:900; margin:15px 0;">${item.price} AZN</div>
+                        <button class="btn-action" onclick="openBuy('${item.name}')">İNDİ AL</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function openBuy(name) { selectedProduct = name; document.getElementById('buy-title').innerText = name; openPanel('buy-panel'); }
+        function openPanel(id) { document.getElementById(id).classList.add('active'); }
+        function closeAllPanels() { document.querySelectorAll('.side-panel').forEach(p => p.classList.remove('active')); }
+        
+        function smartSearch(e) {
+            if(e.key === 'Enter') {
+                const val = e.target.value.toLowerCase();
+                closeAllPanels();
+                if(val.includes('ai')) openPanel('ai-panel');
+                else if(val.includes('sifariş')) openPanel('order-panel');
+                else if(val.includes('market')) {
+                    document.getElementById('home-view').style.display = 'none';
+                    document.getElementById('market-view').style.display = 'block';
+                    renderMarket();
+                }
+            }
+        }
+    </script>
+</body>
+</html>
