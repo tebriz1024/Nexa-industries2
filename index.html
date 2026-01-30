@@ -85,6 +85,14 @@
             <h2>NEXA OS v4.0</h2>
             <p>Yeni nəsil idarəetmə paneli ilə biznesinizi tək bir mərkəzdən idarə edin. Marketplace-dən ən son texnologiyaları əldə edin.</p>
         </section>
+
+        <section style="text-align: center; padding: 60px 8%; border-top: 1px solid rgba(0,210,255,0.1);">
+            <h3 style="color: var(--accent); margin-bottom: 20px; font-weight: 900;">NEXA-YA DƏSTƏK OLUN</h3>
+            <button class="btn-action" style="max-width: 300px; background: transparent; border: 1px solid var(--accent); color: var(--accent);" 
+            onclick="window.open('https://www.effectivegatecpm.com/pxkgb7jy?key=4dd4cbbbfeb31b595579323b4d1675c4', '_blank')">
+                DƏSTƏK OL (REKLAM)
+            </button>
+        </section>
     </div>
 
     <div id="market-view" class="page">
@@ -171,7 +179,6 @@
         }
         function closeAllPanels() { document.querySelectorAll('.side-panel').forEach(p => p.classList.remove('active')); }
 
-        // ADMIN KEY CHECKER
         function adminQuickCheck(el) {
             if(el.value === '20107213') {
                 openPanel('admin-panel');
@@ -205,7 +212,6 @@
             renderAdminList();
             renderMarket();
             nexaNotify("Məhsul Marketplace-ə əlavə edildi.");
-            // Reset fields
             document.getElementById('adm-name').value = "";
             document.getElementById('adm-price').value = "";
             document.getElementById('adm-img').value = "";
@@ -257,16 +263,7 @@
                     headers: { "Authorization": `Bearer ${GROQ_KEY}`, "Content-Type": "application/json" },
                     body: JSON.stringify({
                         model: "llama-3.3-70b-versatile",
-                        messages: [{ 
-                            role: "system", 
-                            content: `Sən Vexa AI-san, NEXA INDUSTRIES-in (Qurucu: Təbriz Hüseynli) rəsmi köməkçisisən. 
-                            Saytın xüsusiyyətləri:
-                            1. Marketplace: 'market' yazmaqla açılır. Buradan proqramlar almaq olar.
-                            2. Sifariş: İstifadəçi özəl layihə istəyə bilər.
-                            3. Admin: Xüsusi kodla girilir.
-                            4. Valyuta: Həmişə Azərbaycan Manatı (AZN) istifadə olunur.
-                            Sən həm texniki dəstək verirsən, həm də NEXA-nın rəqəmsal gücünü təmsil edirsən.` 
-                        }, { role: "user", content: userText }]
+                        messages: [{ role: "system", content: "Sən Vexa AI-san." }, { role: "user", content: userText }]
                     })
                 });
                 const data = await response.json();
@@ -278,7 +275,7 @@
         async function sendOrder() {
             const tel = document.getElementById('ord-phone').value;
             if(!tel) return nexaNotify("Nömrə daxil edin!", true);
-            const text = `🚀 YENİ LAYİHƏ\n🏢: ${document.getElementById('ord-comp').value}\n📞: ${tel}`;
+            const text = `🚀 YENİ LAYİHƏ\n📞: ${tel}`;
             await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${ADMIN_ID}&text=${encodeURIComponent(text)}`);
             document.getElementById('success-screen').style.display = 'flex';
         }
